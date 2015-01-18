@@ -68,4 +68,19 @@ def gLogNormalAux(eta,ecounts,exp_eq_m,eq_inv_tau):
     g = -(ecounts.sum(axis=1) - beta.dot(C) - eq_inv_tau * eta)
     return(g)
 
+# utility
+def makeVocab(counts,min_count):
+    N = sum([x > min_count for x in counts.values()])
+    vocab = [word for word,count in counts.most_common(N)] #use vocab.index() to get the index of a word
+    return vocab    
+
+def makeCountVec(counts,vocab):    
+    vec = zeros(len(vocab))
+    for i,word in enumerate(vocab):
+        vec[i] = counts[word]
+    return vec
+
+def topK(beta,vocab,K=10):
+    return [vocab[idx] for idx in (-beta).argsort()[:K]]
+
     
