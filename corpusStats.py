@@ -70,3 +70,18 @@ def betabin_cdf(k,N,a,b):
     else:
         p = sum([np.exp(log_betabin(x,N,a,b)) for x in range(k+1)])
     return p
+
+def printSF(x,n):
+    """
+    Print x up to n significant figures.
+    I think I got this from stackoverflow somewhere, but I can't find the page now. Sorry.
+
+    :type x: float
+    :param x: number to print
+    
+    :type n: int
+    :param N: number of significant figures
+    """
+    nsf = -int(np.floor(np.log10(x))) + n - 1
+    fmtstr = "%."+str(nsf)+"f"
+    return fmtstr%(x)

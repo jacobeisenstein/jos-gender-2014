@@ -21,7 +21,7 @@ This implementation does not include the Newton optimization from the paper; tha
 
 # for this to work, ecounts must be
 # eq_m must be a 1D vector of shape (W,)
-def estimate(ecounts,eq_m,max_its=25):
+def estimate(ecounts,eq_m,max_its=25,init_inv_tau=None):
     """
     Compute the parameters of a SAGE distribution.
 
@@ -35,9 +35,20 @@ def estimate(ecounts,eq_m,max_its=25):
     :returns: parameters of a SAGE distribution
     
     """
+    if len(ecounts.shape)==1:
+        ecounts = reshape(ecounts,(-1,1))
     [W,K] = ecounts.shape
-    eta = zeros(W)
-    eq_inv_tau = ones(W)
+
+    # initialize E[tau^{-1}] and \eta
+    if init_inv_tau is None:
+        ec_flat = ecounts.flatten()
+        # Laplace add-1 smoothing
+        eta = log(ec_flat + 1.) - log((ec_flat+1.).sum()) - eq_m
+        eq_inv_tau = min(max_inv_tau,(eta**-2).mean()) * ones(W)
+    else:
+        eq_inv_tau = init_inv_tau*ones(W)
+        eta = zeros(W)
+
     exp_eq_m = exp(eq_m)
     max_inv_tau = 1e5
     it = di.DeltaIterator(debug=False,max_its=max_its,thresh=1e-4)
