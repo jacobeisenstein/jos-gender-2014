@@ -38,19 +38,21 @@ def estimate(ecounts,eq_m,max_its=25,init_inv_tau=None):
     if len(ecounts.shape)==1:
         ecounts = reshape(ecounts,(-1,1))
     [W,K] = ecounts.shape
-
+    max_inv_tau = 1e5
     # initialize E[tau^{-1}] and \eta
     if init_inv_tau is None:
         ec_flat = ecounts.flatten()
         # Laplace add-1 smoothing
         eta = log(ec_flat + 1.) - log((ec_flat+1.).sum()) - eq_m
-        eq_inv_tau = min(max_inv_tau,(eta**-2).mean()) * ones(W)
+        #eq_inv_tau = min(max_inv_tau,(eta**-2).mean()) * ones(W)
+        #print eq_inv_tau
+        eq_inv_tau = 1/(eta**2)
+        eq_inv_tau[eq_inv_tau > max_inv_tau] = max_inv_tau
     else:
         eq_inv_tau = init_inv_tau*ones(W)
         eta = zeros(W)
 
     exp_eq_m = exp(eq_m)
-    max_inv_tau = 1e5
     it = di.DeltaIterator(debug=False,max_its=max_its,thresh=1e-4)
     while not(it.done):
         fLogNormal = lambda x : fLogNormalAux(x,ecounts,exp_eq_m,eq_inv_tau)
